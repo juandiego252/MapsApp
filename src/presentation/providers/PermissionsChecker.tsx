@@ -25,7 +25,7 @@ export const PermissionsChecker = ({ children }: PropsWithChildren) => {
                     });
                 }
             } else {
-                navigation.navigate('LoginScreen');
+                navigation.navigate('LoginScreen')
                 // navigation.reset({
                 //     index: 0,
                 //     routes: [{ name: 'LoginScreen' }],
