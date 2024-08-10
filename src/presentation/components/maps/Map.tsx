@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker, Polyline, Polygon } from 'react-native-maps';
 import { Location } from '../../../infrastructure/interfaces/location';
@@ -13,9 +13,8 @@ interface Props {
 }
 
 export const Map = ({ showUsersLocation = true, initialLocation }: Props) => {
-
-    const markerColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
-    const mapRef = useRef<MapView>();
+    const markerColors = useMemo(() => ['red', 'blue', 'green', 'yellow', 'purple', 'orange'], []);
+    const mapRef = useRef<MapView>(null);
     const cameraLocation = useRef<Location>(initialLocation);
     const { getLocation, lastKnowLocation, watchLocation, clearWatchLocation, userlocationList } = useLocationStore();
     const [isFollowingUser, setIsFollowingUser] = useState(true);
@@ -23,42 +22,37 @@ export const Map = ({ showUsersLocation = true, initialLocation }: Props) => {
     const [isMarkerUserLocation, setIsMarkerUserLocation] = useState(true);
     const [activeUserLocations, setActiveUserLocations] = useState<{ [key: string]: Location }>({});
     const [polygonArea, setPolygonArea] = useState(0);
-    const locationCoordinates = Object.values(activeUserLocations);
+
+    const locationCoordinates = useMemo(() => Object.values(activeUserLocations), [activeUserLocations]);
+
     const moveCamaraToLocation = (location: Location) => {
-        if (!mapRef.current) return;
-        mapRef.current.animateCamera({
-            center: location
-        })
+        mapRef.current?.animateCamera({ center: location });
     }
+
     const moveToCurrentLocation = async () => {
-        if (!lastKnowLocation) {
+        const location = await getLocation();
+        if (location) {
+            moveCamaraToLocation(location);
+        } else {
             moveCamaraToLocation(initialLocation);
         }
-        const location = await getLocation();
-        if (!location) return;
-        moveCamaraToLocation(location);
     }
+
     useEffect(() => {
-        const fechActiveUserLocations = async () => {
+        const fetchActiveUserLocations = async () => {
             const locations = await getAllActiveUserLocations();
             setActiveUserLocations(locations);
         };
-        fechActiveUserLocations();
-        // Rellena el interval para actualizar ubicaciones cada cierto tiempo
-        const interval = setInterval(fechActiveUserLocations, 5000); // Actualizar cada 5 segundos
 
-        return () => {
-            clearInterval(interval);
-        };
+        fetchActiveUserLocations();
+        const interval = setInterval(fetchActiveUserLocations, 5000);
 
-    }, [])
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         watchLocation();
-
-        return () => {
-            clearWatchLocation();
-        }
+        return () => clearWatchLocation();
     }, []);
 
     useEffect(() => {
@@ -66,31 +60,56 @@ export const Map = ({ showUsersLocation = true, initialLocation }: Props) => {
             moveCamaraToLocation(lastKnowLocation);
         }
     }, [lastKnowLocation, isFollowingUser]);
+
     useEffect(() => {
         const area = calculatePolygonArea(locationCoordinates);
         setPolygonArea(area);
-    }, [activeUserLocations]);
+    }, [locationCoordinates]);
 
-    const getMarkerColor = (userId: string) => {
+    const getMarkerColor = useMemo(() => (userId: string) => {
         const colorIndex = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % markerColors.length;
         return markerColors[colorIndex];
-    }
+    }, [markerColors]);
+
+    const renderUserMarker = useMemo(() => {
+        if (lastKnowLocation && isMarkerUserLocation) {
+            return (
+                <Marker
+                    coordinate={lastKnowLocation}
+                    title="Mi ubicación"
+                    description="Estoy aquí"
+                />
+            );
+        }
+        return null;
+    }, [lastKnowLocation, isMarkerUserLocation]);
+
+    const renderOtherMarkers = useMemo(() => {
+        return Object.entries(activeUserLocations).map(([userId, location]) => (
+            <Marker
+                key={userId}
+                coordinate={location}
+                title={`Usuario ${userId}`}
+                description="Ubicación del usuario"
+                pinColor={getMarkerColor(userId)}
+            />
+        ));
+    }, [activeUserLocations, getMarkerColor]);
 
     return (
         <>
             <MapView
-                ref={(map) => mapRef.current = map!}
+                ref={mapRef}
                 showsUserLocation={showUsersLocation}
-                provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+                provider={PROVIDER_GOOGLE}
                 style={{ flex: 1 }}
                 onTouchStart={() => setIsFollowingUser(false)}
                 region={{
-                    latitude: cameraLocation.current.latitude,
-                    longitude: cameraLocation.current.longitude,
+                    ...cameraLocation.current,
                     latitudeDelta: 0.015,
                     longitudeDelta: 0.0121,
-                }}>
-                {/* Polígono que une los marcadores */}
+                }}
+            >
                 {locationCoordinates.length > 0 && (
                     <Polygon
                         coordinates={locationCoordinates}
@@ -99,74 +118,40 @@ export const Map = ({ showUsersLocation = true, initialLocation }: Props) => {
                         strokeWidth={5}
                     />
                 )}
-                {
-                    isShowingPolyline && (
-                        <Polyline
-                            coordinates={userlocationList}
-                            strokeColor='black'
-                            strokeWidth={5}
-                        />
-                    )
-                }
-                {lastKnowLocation &&
-                    typeof lastKnowLocation.latitude === 'number' &&
-                    typeof lastKnowLocation.longitude === 'number' &&
-                    isMarkerUserLocation && (
-                        <Marker
-                            coordinate={{
-                                latitude: lastKnowLocation.latitude,
-                                longitude: lastKnowLocation.longitude,
-                            }}
-                            title="Mi ubicación"
-                            description="Estoy aquí"
-                        />
-                    )}
-                {Object.entries(activeUserLocations).map(([userId, location]) => (
-                    <Marker
-                        key={userId}
-                        coordinate={location}
-                        title={`Usuario ${userId}`}
-                        description="Ubicación del usuario"
-                        pinColor={getMarkerColor(userId)}
+                {isShowingPolyline && (
+                    <Polyline
+                        coordinates={userlocationList}
+                        strokeColor='black'
+                        strokeWidth={5}
                     />
-                ))}
+                )}
+                {renderUserMarker}
+                {renderOtherMarkers}
             </MapView>
             <View style={styles.areaContainer}>
                 <Text style={styles.areaText}>
                     Área: {polygonArea.toFixed(6)} km²
                 </Text>
             </View>
-            <FAB
+            {/* <FAB
                 iconName={isMarkerUserLocation ? 'flag' : 'flag-outline'}
                 onPress={() => setIsMarkerUserLocation(!isMarkerUserLocation)}
-                style={{
-                    bottom: 200,
-                    right: 20
-                }}
-            />
+                style={styles.fabMarker}
+            /> */}
             <FAB
                 iconName={isShowingPolyline ? 'eye-outline' : 'eye-off-outline'}
                 onPress={() => setIsShowingPolyline(!isShowingPolyline)}
-                style={{
-                    bottom: 140,
-                    right: 20
-                }}
+                style={styles.fabPolyline}
             />
             <FAB
                 iconName={isFollowingUser ? 'walk-outline' : 'accessibility-outline'}
                 onPress={() => setIsFollowingUser(!isFollowingUser)}
-                style={{
-                    bottom: 80,
-                    right: 20
-                }}
+                style={styles.fabFollow}
             />
             <FAB
                 iconName='compass-outline'
                 onPress={moveToCurrentLocation}
-                style={{
-                    bottom: 20,
-                    right: 20
-                }}
+                style={styles.fabCompass}
             />
         </>
     )
@@ -185,4 +170,20 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    fabMarker: {
+        bottom: 200,
+        right: 20
+    },
+    fabPolyline: {
+        bottom: 140,
+        right: 20
+    },
+    fabFollow: {
+        bottom: 80,
+        right: 20
+    },
+    fabCompass: {
+        bottom: 20,
+        right: 20
+    }
 });
