@@ -7,19 +7,12 @@ import { useAuthStore } from '../../presentation/store/users/useAuthLocation';
 export const getCurrentLocation = async (): Promise<Location> => {
     return new Promise((resolve, reject) => {
         Geolocation.getCurrentPosition(info => {
-            resolve({
-                latitude: info.coords.latitude,
-                longitude: info.coords.longitude
-            })
+            resolve({latitude: info.coords.latitude,longitude: info.coords.longitude})
         }, (error) => {
             console.log(`Can't get posistion ${error}`);
             reject(error);
-        }, {
-            enableHighAccuracy: true
-        });
-
+        }, {enableHighAccuracy: true});
     });
-
 };
 export const watchCurrentLocation = (locationCallback: (location: Location) => void): number => {
     const watchId = Geolocation.watchPosition(info => {
@@ -28,7 +21,7 @@ export const watchCurrentLocation = (locationCallback: (location: Location) => v
             longitude: info.coords.longitude,
         };
 
-        // Llama al callback con la nueva ubicación
+        // Con la nueva ubicación llama al callback
         locationCallback(location);
 
         // Verifica si el usuario está autenticado y actualiza Firebase
@@ -39,12 +32,7 @@ export const watchCurrentLocation = (locationCallback: (location: Location) => v
             database().ref(`/locations/${user.uid}`).set(location)
                 .catch(error => console.log(`Can't update location in Firebase: ${error}`));
         }
-    }, (error) => {
-        console.log(`Can't get watch position: ${error}`);
-    }, {
-        enableHighAccuracy: true,
-    });
-
+    }, (error) => {console.log(`Can't get watch position: ${error}`);}, {enableHighAccuracy: true,});
     return watchId;
 };
 export const clearWatchLocation = (watchId: number) => {
@@ -56,8 +44,5 @@ export const getAllActiveUserLocations = async (): Promise<{ [key: string]: Loca
         const snapshot = await database().ref('/locations').once('value');
         const data = snapshot.val();
         return data || {};
-    } catch (error) {
-        console.log(`Error fetching active user locations ${error}`);
-        return {};
-    }
+    } catch (error) {console.log(`Error fetching active user locations ${error}`);return {};}
 }
