@@ -1,28 +1,24 @@
-// AdminHomeScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { Text, View, Button, TextInput, FlatList } from 'react-native';
-import { signUp, signIn, signOut, isAdmin, listUsers } from '../../../services/authService';
-import auth from '@react-native-firebase/auth';  // Para obtener el UID del usuario actual
+import { Text, View, Button, TextInput, FlatList, Alert } from 'react-native';
+import { signUp, signIn, signOut, isAdmin, listUsers, toggleUserActivation, deleteUser } from '../../../services/authService';
+import auth from '@react-native-firebase/auth';
 
 export const AdminHomeScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user'); // Puedes cambiarlo a 'administrador' si es necesario
+  const [role, setRole] = useState('user');
   const [uid, setUid] = useState<string | null>(null);
   const [isAdminRole, setIsAdminRole] = useState(false);
-  const [users, setUsers] = useState<Array<{ uid: string; email: string; role: string }>>([]);
+  const [users, setUsers] = useState<Array<{ uid: string; email: string; role: string; active: boolean }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Obtener UID del usuario autenticado y verificar si es administrador
     const user = auth().currentUser;
     if (user) {
       setUid(user.uid);
       checkIfAdmin(user.uid);
     }
-
-    // Listar usuarios
     fetchUsers();
   }, []);
 
@@ -45,33 +41,67 @@ export const AdminHomeScreen = () => {
   const handleSignUp = async () => {
     try {
       const userCredential = await signUp(email, password, role);
-      console.log("Usuario registrado:", userCredential.user.email);
+      Alert.alert('Usuario registrado', `Usuario ${userCredential.user.email} ha sido registrado exitosamente.`);
       setEmail('');
       setPassword('');
-      fetchUsers(); // Refrescar la lista de usuarios después de registrar uno nuevo
+      fetchUsers();
     } catch (error) {
-      console.error(error);
+      Alert.alert('Error', `No se pudo registrar el usuario: ${error}`);
     }
   };
 
   const handleSignIn = async () => {
     try {
       const userCredential = await signIn(email, password);
-      console.log("Usuario autenticado:", userCredential.user.email);
+      Alert.alert('Usuario autenticado', `Usuario ${userCredential.user.email} ha iniciado sesión exitosamente.`);
       setEmail('');
       setPassword('');
     } catch (error) {
-      console.error(error);
+      Alert.alert('Error', `No se pudo iniciar sesión: ${error}`);
     }
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      console.log("Usuario cerró sesión");
+      Alert.alert('Sesión cerrada', 'La sesión ha sido cerrada exitosamente.');
     } catch (error) {
-      console.error(error);
+      Alert.alert('Error', `No se pudo cerrar sesión: ${error}`);
     }
+  };
+
+  const handleToggleActivation = async (uid: string, currentStatus: boolean) => {
+    try {
+      await toggleUserActivation(uid, !currentStatus);
+      Alert.alert('Estado actualizado', `El usuario ha sido ${!currentStatus ? 'activado' : 'desactivado'}.`);
+      fetchUsers();
+    } catch (error) {
+      Alert.alert('Error', `No se pudo actualizar el estado: ${error}`);
+    }
+  };
+
+  const handleDeleteUser = async (uid: string) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar este usuario?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteUser(uid);
+              Alert.alert('Usuario eliminado', 'El usuario ha sido eliminado exitosamente.');
+              fetchUsers();
+            } catch (error) {
+              Alert.alert('Error', `No se pudo eliminar el usuario: ${error}`);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   if (loading) {
@@ -129,6 +159,16 @@ export const AdminHomeScreen = () => {
           <View style={{ padding: 10, borderBottomWidth: 1 }}>
             <Text>Email: {item.email}</Text>
             <Text>Rol: {item.role}</Text>
+            <Text>Estado: {item.active ? 'Activo' : 'Inactivo'}</Text>
+            <Button
+              title={item.active ? 'Desactivar' : 'Activar'}
+              onPress={() => handleToggleActivation(item.uid, item.active)}
+            />
+            <Button
+              title="Eliminar"
+              color="red"
+              onPress={() => handleDeleteUser(item.uid)}
+            />
           </View>
         )}
       />

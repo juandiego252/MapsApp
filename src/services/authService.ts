@@ -51,16 +51,45 @@ export const isAdmin = async (uid: string): Promise<boolean> => {
     }
 };
 
-export const listUsers = async (): Promise<Array<{ uid: string; email: string; role: string }>> => {
+//Listar ususarios
+export const listUsers = async (): Promise<Array<{ uid: string; email: string; role: string; active: boolean }>> => {
     try {
         const usersSnapshot = await firestore().collection('usuarios').get();
-        const usersList = usersSnapshot.docs.map(doc => ({
-            uid: doc.id,
-            ...doc.data() as { email: string; role: string } // Casting data to a known structure
-        }));
+        const usersList = usersSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                uid: doc.id,
+                email: data.email,
+                role: data.role,
+                active: data.active ?? true, // Default to true if 'active' is not present
+            };
+        });
         return usersList;
     } catch (error) {
-        const errorMessage = (error as Error).message;
-        throw new Error(`Can't list users: ${errorMessage}`);
+        throw new Error(`Error fetching users: ${error}`);
+    }
+};
+
+// Activar o desactivar usuario
+export const toggleUserActivation = async (uid: string, isActive: boolean): Promise<void> => {
+    try {
+        await firestore().collection('usuarios').doc(uid).update({
+            active: isActive
+        });
+    } catch (error) {
+        throw new Error(`Can't toggle activation: ${error}`);
+    }
+};
+
+// Eliminar usuario
+export const deleteUser = async (uid: string): Promise<void> => {
+    try {
+        await firestore().collection('usuarios').doc(uid).delete();
+        const user = auth().currentUser;
+        if (user && user.uid === uid) {
+            await user.delete();
+        }
+    } catch (error) {
+        throw new Error(`Can't delete user: ${error}`);
     }
 };
