@@ -4,6 +4,7 @@ import { LoadingScreen } from '../screens/loading/LoadingScreen';
 import { PermissionsScreen } from '../screens/permissions/PermissionsScreen';
 import { LoginScreen } from '../screens/login/LoginScreen';
 import { RegisterScreen } from '../screens/register/RegisterScreen';
+import { AdminTabNavigator } from '../screens/admin/AdminScreen';
 
 export type RootStackParams = {
     LoadingScreen: undefined;
@@ -11,6 +12,7 @@ export type RootStackParams = {
     MapsScreen: undefined;
     LoginScreen: undefined;
     RegisterScreen: undefined;
+    AdminScreen: undefined;
 }
 
 const Stack = createStackNavigator<RootStackParams>();
@@ -30,6 +32,7 @@ export const StackNavigator = () => {
             <Stack.Screen name="PermissionScreen" component={PermissionsScreen} />
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+            <Stack.Screen name="AdminScreen" component={AdminTabNavigator} />
             {/* <Stack.Screen name="Notifications" component={Notifications} />
             <Stack.Screen name="Profile" component={Profile} />
             <Stack.Screen name="Settings" component={Settings} /> */}

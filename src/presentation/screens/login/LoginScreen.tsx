@@ -1,22 +1,48 @@
 import React, { useState } from 'react';
-import { Pressable, Text, TextInput, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { Pressable, Text, TextInput, View, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { GlobalStyles } from '../../../config/theme/styles';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { signIn } from '../../../services/authService';
+import firestore from '@react-native-firebase/firestore';
+import { useAuthStore } from '../../store/users/useAuthLocation';
 
 export const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation<NavigationProp<RootStackParams>>();
+    const { setIsAuthenticated, setUserRole } = useAuthStore();
+    // const handleLogin = async () => {
+    //     try {
+    //         const { user } = await signIn(email, password);
+    //         if ( === 'administrador') {
+
+    //         }
+    //         await signIn(email, password);
+    //         navigation.navigate('PermissionScreen');
+    //     } catch (error) {
+    //         console.log(`${error}`)
+    //     }
+    // }
     const handleLogin = async () => {
         try {
-            await signIn(email, password);
-            navigation.navigate('PermissionScreen');
+            const userCredential = await signIn(email, password);
+
+            if (userCredential.user) {
+                // Navegar basado en el rol del usuario
+                const userDoc = await firestore().collection('usuarios').doc(userCredential.user.uid).get();
+                const userRole = userDoc.data()?.role || 'user';
+
+                if (userRole === 'administrador') {
+                    navigation.navigate('AdminScreen');
+                } else {
+                    navigation.navigate('PermissionScreen');
+                }
+            }
         } catch (error) {
-            console.log(`${error}`)
+            Alert.alert('Error de inicio de sesión', error instanceof Error ? error.message : 'Error desconocido');
         }
-    }
+    };
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}

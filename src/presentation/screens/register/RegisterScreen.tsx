@@ -4,20 +4,22 @@ import { GlobalStyles } from '../../../config/theme/styles';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { signUp } from '../../../services/authService';
+import { Picker } from '@react-native-picker/picker';
 
 export const RegisterScreen = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [role, setRole] = useState('user');  // Estado para manejar el rol seleccionado
     const navigation = useNavigation<NavigationProp<RootStackParams>>();
 
     const handleRegister = async () => {
         try {
-            await signUp(email, password);
-            Alert.alert('Exito', 'Registro exitoso');
+            await signUp(email, password, role);  // Pasar el rol seleccionado al método signUp
+            Alert.alert('Éxito', 'Registro exitoso');
             navigation.navigate('LoginScreen');
         } catch (error) {
-            console.log(`Error: ${error}`)
+            console.log(`Error: ${error}`);
         }
     };
 
@@ -61,6 +63,18 @@ export const RegisterScreen = () => {
                             value={password}
                             onChangeText={setPassword}
                         />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Selecciona tu rol</Text>
+                        <Picker
+                            selectedValue={role}
+                            style={styles.picker}
+                            onValueChange={(itemValue) => setRole(itemValue)}
+                        >
+                            <Picker.Item label="Usuario" value="user" />
+                            <Picker.Item label="Administrador" value="administrador" />
+                        </Picker>
                     </View>
 
                     <Pressable
@@ -119,6 +133,12 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 5,
         fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    picker: {
+        backgroundColor: 'white',
+        borderRadius: 5,
         borderWidth: 1,
         borderColor: '#ddd',
     },
