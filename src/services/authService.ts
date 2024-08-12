@@ -49,4 +49,18 @@ export const isAdmin = async (uid: string): Promise<boolean> => {
         console.error(`Can't verify rol administrador ${error}`);
         return false;
     }
-}
+};
+
+export const listUsers = async (): Promise<Array<{ uid: string; email: string; role: string }>> => {
+    try {
+        const usersSnapshot = await firestore().collection('usuarios').get();
+        const usersList = usersSnapshot.docs.map(doc => ({
+            uid: doc.id,
+            ...doc.data() as { email: string; role: string } // Casting data to a known structure
+        }));
+        return usersList;
+    } catch (error) {
+        const errorMessage = (error as Error).message;
+        throw new Error(`Can't list users: ${errorMessage}`);
+    }
+};
