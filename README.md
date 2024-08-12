@@ -77,3 +77,36 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+
+# Proyecto final de Desarrollo de Aplicaciones Móviles
+
+### Integrantes
+- Juan Falconi
+- Juan Gualotuña
+- Heyer Tinoco
+
+## Funcionamiento de la Aplicación 
+
+Esta aplicacion permite trackear la ubicacion en tiempo real de 3 o mas dispositivos conectados, el fin de esta aplicacion es calcular el area de la figura que se este formado al trackear los dispositivos.
+
+### Pantalla de Inicio de Sesióm
+
+Se implemento la autentificacion de firebase para manejar la entrada de ussuarios y los roles que tendran cada usuario
+
+### Registro de un usuario
+
+### Mapa
+
+<p align="center">
+  <img src="[https://github.com/user-attachments/assets/bdd6949f-dfdc-437c-b6f5-2ea319341c82](https://github.com/user-attachments/assets/40927625-fa14-4ef6-ac24-42b44e695fbe)" alt="Ver notas" width="300"/>
+</p>
+
+### Funciones del administrador
+
+El administrador va a poder realizar las siguientes operaciones:
+- Registrar Usuarios
+- Eliminar Usuarios
+- Activar/Desactivar a un Usuario.
+- Listar a todos los usuarios registrados.
+
