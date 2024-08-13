@@ -5,6 +5,8 @@
 - Juan Gualotuña
 - Heyer Tinoco
 
+## URL Del video:
+> https://www.youtube.com/watch?v=KpH5z6ukMHs
 ## Funcionamiento de la Aplicación 
 
 Esta aplicacion permite trackear la ubicacion en tiempo real de 3 o mas dispositivos conectados, el fin de esta aplicacion es calcular el area de la figura que se este formado al trackear los dispositivos.
