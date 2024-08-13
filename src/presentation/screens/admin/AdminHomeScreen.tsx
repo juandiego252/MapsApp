@@ -11,7 +11,6 @@ interface User {
   role: string;
   active: boolean;
 }
-
 export const AdminHomeScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -188,24 +187,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   title: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 19,
     textAlign: 'center',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
-    padding: 10,
-    marginBottom: 10,
+    padding: 90,
+    marginBottom: 11,
     borderRadius: 5,
     backgroundColor: 'white',
   },
   button: {
     backgroundColor: '#007AFF',
-    padding: 10,
+    padding: 11,
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 11,
   },
   buttonText: {
     color: 'white',
@@ -222,12 +221,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    marginBottom: 5,
+    marginBottom: 6,
     color: '#333',
   },
   picker: {
     backgroundColor: 'white',
-    borderRadius: 5,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: '#ddd',
   },
