@@ -107,7 +107,7 @@ Se implemento la autentificacion de firebase para manejar la entrada de ussuario
 ### Mapa
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/1467ef8d-db59-474b-b30a-bfd3c2ae57ab" alt="Mapa" width="300"/>
+  <img src="https://github.com/user-attachments/assets/2523854d-3c70-4a17-82b7-391dc0558831" alt="Mapa" width="300"/>
 </p>
 
 ### Funciones del administrador
@@ -119,6 +119,6 @@ El administrador va a poder realizar las siguientes operaciones:
 - Listar a todos los usuarios registrados.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c57ef531-e7f8-4be2-b593-53542c3938ba" alt="Funciones del administrador" width="300"/>
+  <img src="https://github.com/user-attachments/assets/1467ef8d-db59-474b-b30a-bfd3c2ae57ab" alt="Funciones del administrador" width="300"/>
 </p>
 
