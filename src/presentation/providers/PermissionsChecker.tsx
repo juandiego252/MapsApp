@@ -9,7 +9,6 @@ export const PermissionsChecker = ({ children }: PropsWithChildren) => {
     const { isAuthenticated } = useAuthStore();
     const { locationStatus, checkLocationPermission } = usePermissionStore();
     const navigation = useNavigation<NavigationProp<RootStackParams>>();
-
     useEffect(() => {
         const navigate = () => {
             if (isAuthenticated) {
@@ -19,18 +18,9 @@ export const PermissionsChecker = ({ children }: PropsWithChildren) => {
                         routes: [{ name: 'MapsScreen' }],
                     });
                 } else if (locationStatus !== 'undetermined') {
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'PermissionScreen' }],
-                    });
+                    navigation.reset({index: 0,routes: [{ name: 'PermissionScreen' }],});
                 }
-            } else {
-                navigation.navigate('LoginScreen')
-                // navigation.reset({
-                //     index: 0,
-                //     routes: [{ name: 'LoginScreen' }],
-                // });
-            }
+            } else {navigation.navigate('LoginScreen')}
         };
 
         navigate();
@@ -49,13 +39,9 @@ export const PermissionsChecker = ({ children }: PropsWithChildren) => {
             }
             console.log('AppState', nextAppState);
         };
-
         const subscription = AppState.addEventListener('change', handleAppStateChange);
 
-        return () => {
-            subscription.remove();
-        };
+        return () => {subscription.remove();};
     }, [isAuthenticated, checkLocationPermission]);
-
     return <>{children}</>;
 };
