@@ -12,18 +12,7 @@ export const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const navigation = useNavigation<NavigationProp<RootStackParams>>();
     const { setIsAuthenticated, setUserRole } = useAuthStore();
-    // const handleLogin = async () => {
-    //     try {
-    //         const { user } = await signIn(email, password);
-    //         if ( === 'administrador') {
 
-    //         }
-    //         await signIn(email, password);
-    //         navigation.navigate('PermissionScreen');
-    //     } catch (error) {
-    //         console.log(`${error}`)
-    //     }
-    // }
     const handleLogin = async () => {
         try {
             const userCredential = await signIn(email, password);
@@ -39,9 +28,7 @@ export const LoginScreen = () => {
                     navigation.navigate('PermissionScreen');
                 }
             }
-        } catch (error) {
-            Alert.alert('Error de inicio de sesión', error instanceof Error ? error.message : 'Error desconocido');
-        }
+        } catch (error) {Alert.alert('Error de inicio de sesión', error instanceof Error ? error.message : 'Error desconocido');}
     };
     return (
         <KeyboardAvoidingView
@@ -93,21 +80,21 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: 19,
     },
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 30,
+        marginBottom: 29,
         color: '#333',
     },
     inputContainer: {
         width: '100%',
-        marginBottom: 20,
+        marginBottom: 19,
     },
     label: {
         fontSize: 16,
-        marginBottom: 5,
+        marginBottom: 6,
         color: '#333',
     },
     input: {
@@ -123,7 +110,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        marginTop: 20,
+        marginTop: 21,
     },
     button: {
         flex: 1,

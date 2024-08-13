@@ -6,7 +6,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { color } from 'react-native-elements/dist/helpers';
 
 const Tab = createBottomTabNavigator();
-
 export const AdminTabNavigator = () => {
   return (
     <Tab.Navigator>
