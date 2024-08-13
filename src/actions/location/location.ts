@@ -16,12 +16,8 @@ export const getCurrentLocation = async (): Promise<Location> => {
 };
 export const watchCurrentLocation = (locationCallback: (location: Location) => void): number => {
     const watchId = Geolocation.watchPosition(info => {
-        const location: Location = {
-            latitude: info.coords.latitude,
-            longitude: info.coords.longitude,
-        };
-
-        // Con la nueva ubicación llama al callback
+        const location: Location = {latitude: info.coords.latitude,longitude: info.coords.longitude,};
+        // Se llama al Callback con la nueva ubicación
         locationCallback(location);
 
         // Verifica si el usuario está autenticado y actualiza Firebase

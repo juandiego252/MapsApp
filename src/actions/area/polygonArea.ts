@@ -1,3 +1,4 @@
+
 interface Coordinate {latitude: number;longitude: number;}
 export const calculatePolygonArea = (coordinates: Coordinate[]): number => {
     let area = 0;
