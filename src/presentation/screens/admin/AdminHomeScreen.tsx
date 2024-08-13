@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, Button, TextInput, FlatList, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { signUp, signIn, signOut, isAdmin, listUsers, toggleUserActivation, deleteUser } from '../../../services/authService';
 import auth from '@react-native-firebase/auth';
+import { CardComponent } from '../../../presentation/components/ui/CardComponent';
+import { Picker } from '@react-native-picker/picker';
 
-export const AdminHomeScreen = () => {
+interface User {
+  uid: string;
+  email: string;
+  role: string;
+  active: boolean;
+}
+
+export const AdminHomeScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user');
   const [uid, setUid] = useState<string | null>(null);
   const [isAdminRole, setIsAdminRole] = useState(false);
-  const [users, setUsers] = useState<Array<{ uid: string; email: string; role: string; active: boolean }>>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,7 +115,7 @@ export const AdminHomeScreen = () => {
 
   if (loading) {
     return (
-      <View>
+      <View style={styles.container}>
         <Text>Cargando usuarios...</Text>
       </View>
     );
@@ -114,64 +123,112 @@ export const AdminHomeScreen = () => {
 
   if (error) {
     return (
-      <View>
+      <View style={styles.container}>
         <Text>Error: {error}</Text>
       </View>
     );
   }
 
   return (
-    <View>
-      <Text>Administración de Usuarios</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Administración de Usuarios</Text>
 
       <TextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        style={{ borderWidth: 1, padding: 8, margin: 4 }}
+        style={styles.input}
       />
       <TextInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry={true}
-        style={{ borderWidth: 1, padding: 8, margin: 4 }}
+        style={styles.input}
       />
-      <TextInput
-        placeholder="Role"
-        value={role}
-        onChangeText={setRole}
-        style={{ borderWidth: 1, padding: 8, margin: 4 }}
-      />
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Selecciona el rol</Text>
+        <Picker
+          selectedValue={role}
+          style={styles.picker}
+          onValueChange={(itemValue) => setRole(itemValue)}
+        >
+          <Picker.Item label="Usuario" value="user" />
+          <Picker.Item label="Administrador" value="administrador" />
+        </Picker>
+      </View>
 
-      <Button title="Registrar Usuario" onPress={handleSignUp} />
+      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+        <Text style={styles.buttonText}>Registrar Usuario</Text>
+      </TouchableOpacity>
 
-      {isAdminRole ? (
-        <Text>Este usuario es administrador.</Text>
-      ) : (
-        <Text>Este usuario NO es administrador.</Text>
-      )}
+      <Text style={styles.adminStatus}>
+        {isAdminRole ? "Este usuario es administrador." : "Este usuario NO es administrador."}
+      </Text>
 
       <FlatList
         data={users}
         keyExtractor={(item) => item.uid}
         renderItem={({ item }) => (
-          <View style={{ padding: 10, borderBottomWidth: 1 }}>
-            <Text>Email: {item.email}</Text>
-            <Text>Rol: {item.role}</Text>
-            <Text>Estado: {item.active ? 'Activo' : 'Inactivo'}</Text>
-            <Button
-              title={item.active ? 'Desactivar' : 'Activar'}
-              onPress={() => handleToggleActivation(item.uid, item.active)}
-            />
-            <Button
-              title="Eliminar"
-              color="red"
-              onPress={() => handleDeleteUser(item.uid)}
-            />
-          </View>
+          <CardComponent
+            user={item}
+            onToggleActivation={handleToggleActivation}
+            onDelete={handleDeleteUser}
+          />
         )}
       />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#F5F5F5',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: 'white',
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  adminStatus: {
+    marginVertical: 10,
+    fontStyle: 'italic',
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#333',
+  },
+  picker: {
+    backgroundColor: 'white',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+});
