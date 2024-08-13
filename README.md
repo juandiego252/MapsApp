@@ -107,7 +107,7 @@ Se implemento la autentificacion de firebase para manejar la entrada de ussuario
 ### Mapa
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/d8eafb3c-e150-4f42-9aa2-8e779f45cba6" alt="Mapa" width="300"/>
+  <img src="https://github.com/user-attachments/assets/1467ef8d-db59-474b-b30a-bfd3c2ae57ab" alt="Mapa" width="300"/>
 </p>
 
 ### Funciones del administrador
